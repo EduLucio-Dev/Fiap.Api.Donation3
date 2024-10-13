@@ -1,4 +1,5 @@
 ﻿using Fiap.Api.Donation3.Models;
+using Fiap.Api.Donation3.Repository.Interface;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fiap.Api.Donation3.Controllers
@@ -7,39 +8,31 @@ namespace Fiap.Api.Donation3.Controllers
     [ApiController]
     public class CategoriaController : ControllerBase
     {
+        private readonly ICategoriaRepository _categoriaRepository;
+
+        public CategoriaController(ICategoriaRepository categoriaRepository)
+        {
+            _categoriaRepository = categoriaRepository;
+        }
 
         [HttpGet]
-        public List<CategoriaModel> Get()
+        public IList<CategoriaModel> Get()
         {
-
-            return new List<CategoriaModel>()
-            {
-                new CategoriaModel()
-                {
-                    CategoriaId = 1,
-                    NomeCategoria = "Celular"
-                },
-                new CategoriaModel() {
-                    CategoriaId = 2,
-                    NomeCategoria = "Televisor"
-                }
-            };
+            var listaCategorias = _categoriaRepository.FindAll();
+            return listaCategorias;
         }
 
         [HttpGet("{id:int}")]
         public CategoriaModel Get([FromRoute] int id)
         {
-            return new CategoriaModel()
-            {
-                CategoriaId = 2,
-                NomeCategoria = "Televisor"
-            };
+            return _categoriaRepository.FindById(id);
         }
 
 
         [HttpDelete("{id:int}")]
-        public bool Delete([FromRoute] int id)
+        public bool  Delete([FromRoute] int id)
         {
+            _categoriaRepository.Delete(id);
             return true;
         }
 
@@ -47,6 +40,8 @@ namespace Fiap.Api.Donation3.Controllers
         [HttpPost]
         public CategoriaModel Post([FromBody] CategoriaModel categoriaModel)
         {
+            var id = _categoriaRepository.Insert(categoriaModel);
+            categoriaModel.CategoriaId = id;
             return categoriaModel;
         }
 
@@ -57,6 +52,7 @@ namespace Fiap.Api.Donation3.Controllers
         {
             if (id == categoriaModel.CategoriaId)
             {
+                _categoriaRepository.Update(categoriaModel);
                 return true;
             }
             else
