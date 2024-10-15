@@ -9,6 +9,8 @@ namespace Fiap.Api.Donation3.Repository.Interface
         public IList<UsuarioModel> FindAll();
 
         public UsuarioModel FindById(int id);
+        public UsuarioModel FindByEmailAndSenha(string email, string senha);
+        public UsuarioModel Login(string email, string senha);
 
         public int Insert(UsuarioModel usuarioModel);
 

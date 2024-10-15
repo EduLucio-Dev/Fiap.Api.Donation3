@@ -15,48 +15,96 @@ namespace Fiap.Api.Donation3.Controllers
             _usuarioRepository = usuarioRepository;
         }
         [HttpGet]
-        public IList<UsuarioModel> Get()
+        public ActionResult<IList<UsuarioModel>> Get()
         {
             var listaUsuarios = _usuarioRepository.FindAll();
-            return listaUsuarios;
+            if (listaUsuarios != null && listaUsuarios.Count > 0)
+            {
+                return Ok(listaUsuarios);
+            }
+            else
+            {
+                return NoContent();
+            }
         }
         [HttpGet("{id:int}")]
-        public UsuarioModel Get([FromRoute] int id)
+        public ActionResult<UsuarioModel> Get([FromRoute] int id)
         {
-            return _usuarioRepository.FindById(id);
+            var usuarioModel = _usuarioRepository.FindById(id);
+
+            if (usuarioModel != null)
+            {
+                return Ok(usuarioModel);
+            }
+            else
+            {
+                return NotFound(usuarioModel);
+            }
         }
 
 
         [HttpDelete("{id:int}")]
-        public bool Delete([FromRoute] int id)
+        public ActionResult Delete([FromRoute] int id)
         {
+
+            if (id == 0)
+            {
+                return BadRequest();
+            }
+
+            var categoria = _usuarioRepository.FindById(id);
+            if (categoria == null)
+            {
+                return NotFound();
+            }
+
             _usuarioRepository.Delete(id);
-            return true;
+            return NoContent();
         }
 
 
         [HttpPost]
-        public UsuarioModel Post([FromBody] UsuarioModel usuarioModel)
+        public ActionResult<UsuarioModel> Post([FromBody] UsuarioModel usuarioModel)
         {
-            var id = _usuarioRepository.Insert(usuarioModel);
-            usuarioModel.UsuarioId = id;
-            return usuarioModel;
+            if (ModelState.IsValid)
+            {
+                var usuarioId = _usuarioRepository.Insert(usuarioModel);
+                usuarioModel.UsuarioId = usuarioId;
+                return CreatedAtAction(nameof(Get), new { id = usuarioId }, usuarioModel);
+
+            }
+            else
+            {
+                return BadRequest();
+            }
         }
 
 
 
         [HttpPut("{id:int}")]
-        public bool Put([FromRoute] int id, [FromBody] UsuarioModel usuarioModel)
+        public ActionResult Put([FromRoute] int id, [FromBody] UsuarioModel usuarioModel)
         {
-            if (id == usuarioModel.UsuarioId)
+            if (!ModelState.IsValid)
             {
-                _usuarioRepository.Update(usuarioModel);
-                return true;
+                var errors = ModelState.Values
+                    .SelectMany(x => x.Errors)
+                    .Select(m => m.ErrorMessage);
+                return BadRequest(errors);
             }
-            else
+
+            if (id != usuarioModel.UsuarioId)
             {
-                return false;
+                return BadRequest(new { erro = "Ids divergentes, operação não efetuada" });
             }
+
+            var categoria = _usuarioRepository.FindById(id);
+            if (categoria == null)
+            {
+                return NotFound();
+            }
+
+            _usuarioRepository.Update(usuarioModel);
+            return NoContent();
         }
     }
 }

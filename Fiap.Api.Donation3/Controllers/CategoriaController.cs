@@ -16,49 +16,100 @@ namespace Fiap.Api.Donation3.Controllers
         }
 
         [HttpGet]
-        public IList<CategoriaModel> Get()
+        public ActionResult<IList<CategoriaModel>> Get()
         {
             var listaCategorias = _categoriaRepository.FindAll();
-            return listaCategorias;
+            if (listaCategorias != null && listaCategorias.Count > 0)
+            {
+                return Ok(listaCategorias);
+            }
+            else
+            {
+                return NoContent();
+            }
+
+
+
         }
 
         [HttpGet("{id:int}")]
-        public CategoriaModel Get([FromRoute] int id)
+        public ActionResult<CategoriaModel> Get([FromRoute] int id)
         {
-            return _categoriaRepository.FindById(id);
+            var categoriaModel = _categoriaRepository.FindById(id);
+
+            if (categoriaModel != null)
+            {
+                return Ok(categoriaModel);
+            }
+            else
+            {
+                return NotFound(categoriaModel);
+            }
+
         }
 
 
         [HttpDelete("{id:int}")]
-        public bool  Delete([FromRoute] int id)
+        public ActionResult Delete([FromRoute] int id)
         {
+            if (id == 0)
+            {
+                return BadRequest();
+            }
+
+            var categoria = _categoriaRepository.FindById(id);
+            if (categoria == null) 
+            {
+                return NotFound();
+            }
+
             _categoriaRepository.Delete(id);
-            return true;
+            return NoContent();
         }
 
 
         [HttpPost]
-        public CategoriaModel Post([FromBody] CategoriaModel categoriaModel)
+        public ActionResult<CategoriaModel> Post([FromBody] CategoriaModel categoriaModel)
         {
-            var id = _categoriaRepository.Insert(categoriaModel);
-            categoriaModel.CategoriaId = id;
-            return categoriaModel;
+            if (ModelState.IsValid)
+            {
+                var categoriaId = _categoriaRepository.Insert(categoriaModel);
+                categoriaModel.CategoriaId = categoriaId;
+                return CreatedAtAction(nameof(Get), new {id = categoriaId}, categoriaModel);
+
+            }
+            else
+            {
+                return BadRequest();
+            }
         }
 
 
 
         [HttpPut("{id:int}")]
-        public bool Put([FromRoute] int id, [FromBody] CategoriaModel categoriaModel)
+        public ActionResult Put([FromRoute] int id, [FromBody] CategoriaModel categoriaModel)
         {
-            if (id == categoriaModel.CategoriaId)
+            if (!ModelState.IsValid)
             {
-                _categoriaRepository.Update(categoriaModel);
-                return true;
+                var errors = ModelState.Values
+                    .SelectMany(x => x.Errors)
+                    .Select(m => m.ErrorMessage);
+                return BadRequest(errors);
             }
-            else
+
+            if (id != categoriaModel.CategoriaId)
             {
-                return false;
+                return BadRequest(new { erro = "Ids divergentes, operação não efetuada" });
             }
+
+            var categoria = _categoriaRepository.FindById(id);
+            if (categoria == null)
+            {
+                return NotFound();
+            }
+
+            _categoriaRepository.Update(categoriaModel);
+            return NoContent();
         }
 
 

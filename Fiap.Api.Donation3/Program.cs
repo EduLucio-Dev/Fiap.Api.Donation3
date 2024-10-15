@@ -7,8 +7,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+//builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.SuppressModelStateInvalidFilter = true;
+        options.SuppressMapClientErrors = true;
+    });
 
 var connectionString = builder.Configuration.GetConnectionString("databaseUrl");
 builder.Services.AddDbContext<DataContext>(
