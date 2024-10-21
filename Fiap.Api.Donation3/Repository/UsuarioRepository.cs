@@ -25,10 +25,10 @@ namespace Fiap.Api.Donation3.Repository
             return _dataContext.Usuarios.AsNoTracking().ToList();
         }
 
-        public UsuarioModel FindByEmailAndSenha(string email, string senha)
+        public async Task<UsuarioModel> FindByEmailAndSenha(string email, string senha)
         {
-           var usuario = _dataContext.Usuarios.FirstOrDefault(
-               u => u.EmailUsuario == email && u.Senha == senha);
+           var usuario = await _dataContext.Usuarios.AsNoTracking()
+                .FirstOrDefaultAsync(u => u.EmailUsuario == email && u.Senha == senha);
             return usuario;
         }
 

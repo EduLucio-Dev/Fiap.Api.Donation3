@@ -1,5 +1,4 @@
-﻿using Fiap.Api.Donation3.Data;
-using Fiap.Api.Donation3.Models;
+﻿using Fiap.Api.Donation3.Models;
 
 namespace Fiap.Api.Donation3.Repository.Interface
 {
@@ -8,7 +7,7 @@ namespace Fiap.Api.Donation3.Repository.Interface
 
         public void Delete(int id);
 
-        public IList<CategoriaModel> FindAll();
+        public Task<IList<CategoriaModel>> FindAll();
 
         public CategoriaModel FindById(int id);
 

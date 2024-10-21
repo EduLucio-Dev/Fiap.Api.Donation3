@@ -6,25 +6,25 @@ namespace Fiap.Api.Donation3.Models
     {
 
         [JsonProperty("nome")]
-        public string Nome;
+        public string Nome { get; set; }
 
         [JsonProperty("nivel")]
-        public string Nivel;
+        public string Nivel { get; set; }
 
         [JsonProperty("preco")]
-        public string Preco;
+        public string Preco { get; set; }
 
         [JsonProperty("conteudo")]
-        public string Conteudo;
+        public string Conteudo { get; set; }
 
         [JsonProperty("percentualConclusao")]
-        public int? PercentualConclusao;
+        public int? PercentualConclusao { get; set; }
 
         [JsonProperty("concluido")]
-        public bool? Concluido;
+        public bool? Concluido { get; set; }
 
         [JsonProperty("id")]
-        public string Id;
+        public string Id { get; set; }
 
     }
 }

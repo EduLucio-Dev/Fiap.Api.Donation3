@@ -1,12 +1,15 @@
 ﻿using Fiap.Api.Donation3.Models;
 using Fiap.Api.Donation3.Repository;
 using Fiap.Api.Donation3.Repository.Interface;
+using Fiap.Api.Donation3.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fiap.Api.Donation3.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class UsuarioController : Controller
     {
         private IUsuarioRepository _usuarioRepository;
@@ -41,7 +44,6 @@ namespace Fiap.Api.Donation3.Controllers
                 return NotFound(usuarioModel);
             }
         }
-
 
         [HttpDelete("{id:int}")]
         public ActionResult Delete([FromRoute] int id)
@@ -105,6 +107,34 @@ namespace Fiap.Api.Donation3.Controllers
 
             _usuarioRepository.Update(usuarioModel);
             return NoContent();
+        }
+
+        [HttpPost]
+        [Route("Login")]
+        [AllowAnonymous]
+        public async Task<ActionResult<dynamic>> Login([FromBody] UsuarioModel usuarioModel)
+        {
+            var usuarioRetorno = await _usuarioRepository.FindByEmailAndSenha(usuarioModel.EmailUsuario, usuarioModel.Senha);
+
+            if (usuarioRetorno != null)
+            {
+                usuarioRetorno.Senha = string.Empty;
+
+                var tokenJWT = AuthenticationService.GetToken(usuarioRetorno);
+
+                var retorno = new
+                {
+                    usuario = usuarioRetorno,
+                    token = tokenJWT
+                };
+
+
+                return Ok(retorno);
+            }
+            else
+            {
+                return NotFound();
+            }
         }
     }
 }
